@@ -1,7 +1,8 @@
-FROM python:3.8-slim
+# Use the official Node.js image as a base image
+FROM node:14
 WORKDIR /app
-COPY . /app
-RUN pip install --no-cache-dir -r dependencies.txt
-EXPOSE 80
-ENV NAME World
-CMD ["python", "calculator.py"]
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 3000
+CMD ["node", "index.js"]
