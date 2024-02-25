@@ -1,33 +1,51 @@
-groovy
 pipeline {
     agent any
-
+    
     stages {
+        stage('Checkout') {
+            steps {
+                // Checkout source code from version control
+                checkout scm
+            }
+        }
+        
+        stage('Build and Test') {
+            steps {
+                // Use Node.js tool to install dependencies and run tests
+                script {
+                    def nodeJSHome = tool 'NodeJS'
+                    env.PATH = "${nodeJSHome}/bin:${env.PATH}"
+                    sh 'npm install'
+                    sh 'npm test'
+                }
+            }
+        }
+        
         stage('Build Docker Image') {
             steps {
+                // Build Docker image
                 script {
-                    docker.build("calculator-app")
+                    docker.build('calculator-app')
                 }
             }
         }
-
-        stage('Run Docker Container') {
+        
+        stage('Push Docker Image') {
             steps {
+                // Push Docker image to a registry (replace 'your-registry' with your actual registry)
                 script {
-                    docker.image('calculator-app').run('-p 8080:80', '--name calculator-container')
+                    docker.withRegistry('https://your-registry', 'docker-credentials-id') {
+                        docker.image('calculator-app').push()
+                    }
                 }
             }
         }
-    }
-
-    post {
-        always {
-            stage('Cleanup') {
-                steps {
-                    script {
-                        docker.image('calculator-app').stopContainer('calculator-container')
-                        docker.image('calculator-app').removeContainer('calculator-container')
-                    }
+        
+        stage('Deploy') {
+            steps {
+                // Deploy the application using Docker (replace 'your-registry' with your actual registry)
+                script {
+                    sh 'docker run -d -p 3000:3000 your-registry/calculator-app'
                 }
             }
         }
