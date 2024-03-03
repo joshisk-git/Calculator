@@ -34,7 +34,7 @@ pipeline {
             steps {
                 // Push Docker image to a registry (replace 'your-registry' with your actual registry)
                 script {
-                    docker.withRegistry('https://your-registry', 'docker-credentials-id') {
+                    docker.withRegistry('https://192.168.56.6:3000') {
                         docker.image('calculator-app').push()
                     }
                 }
@@ -45,7 +45,7 @@ pipeline {
             steps {
                 // Deploy the application using Docker (replace 'your-registry' with your actual registry)
                 script {
-                    sh 'docker run -d -p 3000:3000 your-registry/calculator-app'
+                    sh 'docker run -d -p 3000:3000 192.168.56.6/calculator-app'
                 }
             }
         }
